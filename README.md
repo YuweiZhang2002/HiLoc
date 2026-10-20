@@ -35,3 +35,5 @@ Implementation repository: https://github.com/YuweiZhang2002/HiLoc-Code (coming 
 Figures 1–3 use native inline SVG exported from the original paper PDFs. Their original diagrams, labels, embedded photographs, and layout are preserved; no abstract replacements are used. Figure 4 retains an interactive data-engine illustration, with its original artwork available as a reference.
 
 `paper/HiLoc.pdf` is the current camera-ready PDF linked by the Read the paper button. Its first-page project URL points back to the website.
+
+A standalone animated Grid–Cell explorer follows Figure 2. Its large grid, coordinate sliders, Grid/Cell indices, and play/pause controls illustrate encoding while preserving the original paper diagrams.

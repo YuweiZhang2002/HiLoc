@@ -90,3 +90,56 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
 }
 
 document.addEventListener('visibilitychange', () => { if (document.hidden) pauseAnimations.forEach(pause => pause()); });
+
+// Standalone coordinate explorer, accompanying the original paper figures.
+const xSlider = document.querySelector('#x-coordinate');
+const ySlider = document.querySelector('#y-coordinate');
+function updateCoordinate() {
+  const x = Number(xSlider.value), y = Number(ySlider.value);
+  const gx = Math.floor(x / 64), gy = Math.floor(y / 64), cx = x % 64, cy = y % 64;
+  document.querySelector('#x-value').textContent = String(x);
+  document.querySelector('#y-value').textContent = String(y);
+  document.querySelector('#grid-output').textContent = `<grid> <${gx}> <${gy}> </grid>`;
+  document.querySelector('#cell-output').textContent = `<cell> <${cx}> <${cy}> </cell>`;
+  const px = (x + .5) / 8, py = (y + .5) / 8;
+  const cell = document.querySelector('#grid-selection');
+  cell.setAttribute('x', gx * 8); cell.setAttribute('y', gy * 8);
+  for (const id of ['point-dot', 'point-halo']) {
+    const dot = document.getElementById(id); dot.setAttribute('cx', px); dot.setAttribute('cy', py);
+  }
+  document.querySelector('#crosshair').setAttribute('d', `M${px} 0V512M0 ${py}H512`);
+  document.querySelector('#coordinate-grid').setAttribute('aria-label', `Point (${x}, ${y}): Grid (${gx}, ${gy}), Cell (${cx}, ${cy}), at resolution 4096.`);
+}
+xSlider.addEventListener('input', updateCoordinate);
+ySlider.addEventListener('input', updateCoordinate);
+updateCoordinate();
+const coordinatePlay = document.querySelector('#play-coordinate');
+const coordinateCanvas = document.querySelector('.demo-canvas');
+let coordinateTimer;
+function pauseCoordinate() {
+  clearInterval(coordinateTimer); coordinateTimer = undefined;
+  coordinatePlay.textContent = '▶ Play example'; coordinatePlay.setAttribute('aria-pressed', 'false'); coordinateCanvas.classList.remove('is-playing');
+}
+coordinatePlay.addEventListener('click', () => {
+  if (coordinateTimer !== undefined) { pauseCoordinate(); return; }
+  coordinatePlay.textContent = 'Ⅱ Pause example'; coordinatePlay.setAttribute('aria-pressed', 'true'); coordinateCanvas.classList.add('is-playing');
+  const start = performance.now(), sx = Number(xSlider.value), sy = Number(ySlider.value);
+  const targets = [[sx, sy], [3220, 790], [2820, 3290], [720, 2660], [sx, sy]];
+  coordinateTimer = setInterval(() => {
+    const t = ((performance.now() - start) / 2800) % 4, i = Math.floor(t), blend = (1 - Math.cos((t - i) * Math.PI)) / 2;
+    xSlider.value = String(Math.round(targets[i][0] + (targets[i + 1][0] - targets[i][0]) * blend));
+    ySlider.value = String(Math.round(targets[i][1] + (targets[i + 1][1] - targets[i][1]) * blend));
+    updateCoordinate();
+  }, 80);
+});
+xSlider.addEventListener('input', pauseCoordinate); ySlider.addEventListener('input', pauseCoordinate);
+new IntersectionObserver(entries => { if (!entries[0].isIntersecting) pauseCoordinate(); }, {threshold:.1}).observe(coordinateCanvas);
+pauseAnimations.push(pauseCoordinate);
+if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  const startGridOnView = new IntersectionObserver(entries => {
+    if (entries[0].intersectionRatio < .3) return;
+    if (coordinatePlay.getAttribute('aria-pressed') !== 'true') coordinatePlay.click();
+    startGridOnView.unobserve(coordinateCanvas);
+  }, {threshold: .3});
+  startGridOnView.observe(coordinateCanvas);
+}

@@ -19,3 +19,8 @@
 
 /* Exact paper artwork rendered as native inline SVG inside HTML. */
 .original-html-figure{margin-top:28px}.overview-band .original-html-figure{margin-top:0}.source-vector-button{display:block;width:100%;padding:22px;border:0;background:white;cursor:zoom-in;line-height:0}.source-vector{display:block;width:100%;height:auto;max-width:100%}.source-vector-button:hover{background:#fcfdff}@media(max-width:600px){.source-vector-button{padding:10px}}
+
+/* A large live coordinate grid accompanies, rather than replaces, Figure 2. */
+.grid-explorer{margin-top:36px;padding:30px;background:white;border:1px solid var(--border);border-radius:12px}.grid-explorer .explorer-heading{margin:0 0 26px}.grid-explorer .demo-layout{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:38px}.grid-explorer .demo-canvas{min-width:0}.grid-explorer .demo-controls{min-width:0}.grid-explorer-note{margin:24px 0 0;padding-top:18px;border-top:1px solid var(--border)}
+@media(max-width:850px){.grid-explorer .demo-layout{grid-template-columns:1fr}.grid-explorer{padding:24px}.grid-explorer .demo-controls{max-width:600px;width:100%;margin-inline:auto}}
+@media(max-width:600px){.grid-explorer{padding:18px 14px}.grid-explorer .demo-canvas{padding:12px}.grid-explorer .step code{font-size:11px}.grid-explorer .demo-caption{font-size:9px}}
