@@ -18,6 +18,8 @@ The page is dependency-free HTML/CSS/JavaScript. The coordinate explorer illustr
 
 GitHub Pages uses the included `pages.yml` workflow. In repository **Settings → Pages**, set **Source** to **GitHub Actions**. Push to `main` to deploy.
 
+The workflow runs `python3 build_site.py`. The generated HTML references CSS and JavaScript by content-hashed filenames, so a new page cannot accidentally reuse an earlier stylesheet or script from the browser cache. To preview the deployed package locally, run the build, then `python3 -m http.server 8000 --directory _site`.
+
 ## Content
 
 Author order and affiliations follow the authors' camera-ready manuscript. Images in `assets/` are rendered from the manuscript figures. Source figure filenames are retained for traceability. Figures include imagery from the datasets credited in the paper; this repository does not grant additional rights to third-party dataset images.

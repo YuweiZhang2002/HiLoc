@@ -19,11 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Prepare public website
-        run: |
-          mkdir -p _site/assets
-          cp index.html style.css script.js _site/
-          cp assets/*.webp assets/*.svg _site/assets/
-          touch _site/.nojekyll
+        run: python3 build_site.py
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
