@@ -1,0 +1,93 @@
+[
+  {
+    "kind": "figure",
+    "number": 1,
+    "asset": "assets/teaser.webp",
+    "source": "figures/teaser.pdf",
+    "title": "Overview of HiLoc"
+  },
+  {
+    "kind": "figure",
+    "number": 2,
+    "asset": "assets/advantages.webp",
+    "source": "figures/advantages.pdf",
+    "title": "Hierarchical representation and design motivations"
+  },
+  {
+    "kind": "figure",
+    "number": 3,
+    "asset": "assets/loc_overview.webp",
+    "source": "figures/loc_overview.pdf",
+    "title": "Training pipeline of HiLoc"
+  },
+  {
+    "kind": "figure",
+    "number": 4,
+    "asset": "assets/loc_dataset_mask.webp",
+    "source": "figures/loc_dataset_mask.pdf",
+    "title": "Data engine for HiRef-500K"
+  },
+  {
+    "kind": "figure",
+    "number": 5,
+    "asset": "assets/vis_compare_mask.webp",
+    "source": "figures/vis_compare_mask.pdf",
+    "title": "Qualitative comparison with baseline methods"
+  },
+  {
+    "kind": "figure",
+    "number": 6,
+    "asset": "assets/f1_vs_iou.webp",
+    "source": "figures/f1_vs_iou.pdf",
+    "title": "Performance scaling with IoU and object size"
+  },
+  {
+    "kind": "figure",
+    "number": 7,
+    "asset": "assets/ablation_combined.webp",
+    "source": "figures/ablation_combined.pdf",
+    "title": "GRPO, coordinate representations, and training dynamics"
+  },
+  {
+    "kind": "table",
+    "number": 1,
+    "source": "tabels/coco.tex",
+    "title": "COCO: common object detection",
+    "html_id": "paper-table-1"
+  },
+  {
+    "kind": "table",
+    "number": 2,
+    "source": "tabels/lvis.tex",
+    "title": "LVIS: long-tailed object detection",
+    "html_id": "paper-table-2"
+  },
+  {
+    "kind": "table",
+    "number": 3,
+    "source": "tabels/refcoco_visdrone.tex",
+    "title": "VisDrone and RefCOCOg",
+    "html_id": "paper-table-3"
+  },
+  {
+    "kind": "table",
+    "number": 4,
+    "source": "tabels/dcube_omnilabel.tex",
+    "title": "OmniLabel and D³",
+    "html_id": "paper-table-4"
+  },
+  {
+    "kind": "table",
+    "number": 5,
+    "source": "tabels/controlled_resolution.tex",
+    "title": "Controlled COCO: resolution and vocabulary",
+    "html_id": "paper-table-5"
+  },
+  {
+    "kind": "table",
+    "number": 6,
+    "source": "tabels/matched_dcube.tex",
+    "title": "Matched data and reward on D³",
+    "html_id": "paper-table-6"
+  }
+]
