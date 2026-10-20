@@ -32,6 +32,6 @@ All 7 main-text figures are embedded in the relevant method, dataset, results, a
 
 Implementation repository: https://github.com/YuweiZhang2002/HiLoc-Code (coming soon).
 
-Figures 1–4 are native animated diagrams for the overview, Grid–Cell mechanism, training workflow, and HiRef data engine. They start on entering the viewport, support play/pause and manual exploration, pause when offscreen, and respect reduced-motion preferences. Original artwork is available through collapsed reference disclosures. The dataset diagram uses explicitly labeled schematic scenes, not dataset samples.
+Figures 1–3 use native inline SVG exported from the original paper PDFs. Their original diagrams, labels, embedded photographs, and layout are preserved; no abstract replacements are used. Figure 4 retains an interactive data-engine illustration, with its original artwork available as a reference.
 
 `paper/HiLoc.pdf` is the current camera-ready PDF linked by the Read the paper button. Its first-page project URL points back to the website.

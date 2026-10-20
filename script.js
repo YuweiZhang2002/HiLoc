@@ -1,44 +1,4 @@
 'use strict';
-const xSlider = document.querySelector('#x-coordinate');
-const ySlider = document.querySelector('#y-coordinate');
-function updateCoordinate() {
-  const x = Number(xSlider.value), y = Number(ySlider.value);
-  const gx = Math.floor(x / 64), gy = Math.floor(y / 64), cx = x % 64, cy = y % 64;
-  document.querySelector('#x-value').textContent = String(x);
-  document.querySelector('#y-value').textContent = String(y);
-  document.querySelector('#grid-output').textContent = `<grid> <${gx}> <${gy}> </grid>`;
-  document.querySelector('#cell-output').textContent = `<cell> <${cx}> <${cy}> </cell>`;
-  const px = (x + .5) / 8, py = (y + .5) / 8;
-  const cell = document.querySelector('#grid-selection');
-  cell.setAttribute('x', gx * 8); cell.setAttribute('y', gy * 8);
-  for (const id of ['point-dot', 'point-halo']) {
-    const dot = document.getElementById(id); dot.setAttribute('cx', px); dot.setAttribute('cy', py);
-  }
-  document.querySelector('#crosshair').setAttribute('d', `M${px} 0V512M0 ${py}H512`);
-  document.querySelector('#coordinate-grid').setAttribute('aria-label', `Point (${x}, ${y}): Grid (${gx}, ${gy}), Cell (${cx}, ${cy}), at resolution 4096.`);
-}
-xSlider.addEventListener('input', updateCoordinate);
-ySlider.addEventListener('input', updateCoordinate);
-updateCoordinate();
-const tabs = [...document.querySelectorAll('[role="tab"]')];
-function selectTab(tab) {
-  for (const t of tabs) {
-    const active = t === tab;
-    t.setAttribute('aria-selected', String(active)); t.tabIndex = active ? 0 : -1;
-    document.getElementById(t.dataset.panel).hidden = !active;
-  }
-}
-for (const [i, tab] of tabs.entries()) {
-  tab.addEventListener('click', () => selectTab(tab));
-  tab.addEventListener('keydown', e => {
-    let next;
-    if (e.key === 'ArrowRight') next = (i + 1) % tabs.length;
-    if (e.key === 'ArrowLeft') next = (i - 1 + tabs.length) % tabs.length;
-    if (e.key === 'Home') next = 0;
-    if (e.key === 'End') next = tabs.length - 1;
-    if (next !== undefined) { e.preventDefault(); selectTab(tabs[next]); tabs[next].focus(); }
-  });
-}
 document.querySelector('#copy-citation').addEventListener('click', async () => {
   const citation = document.querySelector('#bibtex');
   try {
@@ -54,7 +14,7 @@ const dialog = document.querySelector('#figure-dialog');
 for (const trigger of document.querySelectorAll('[data-zoom]')) {
   trigger.addEventListener('click', () => {
     const image = document.querySelector('#zoomed-figure');
-    image.src = trigger.dataset.zoom; image.alt = trigger.querySelector('img').alt;
+    image.src = trigger.dataset.zoom; image.alt = trigger.dataset.zoomAlt || trigger.querySelector('img')?.alt || 'Paper figure';
     dialog.showModal();
   });
 }
@@ -88,55 +48,6 @@ for (const flow of document.querySelectorAll('[data-flow]')) {
   new IntersectionObserver(entries => { if (!entries[0].isIntersecting) pause(); }, {threshold: .1}).observe(flow);
   pauseAnimations.push(pause);
 }
-const coordinatePlay = document.querySelector('#play-coordinate');
-const coordinateCanvas = document.querySelector('.demo-canvas');
-let coordinateTimer;
-function pauseCoordinate() {
-  clearInterval(coordinateTimer); coordinateTimer = undefined;
-  coordinatePlay.textContent = '▶ Play example'; coordinatePlay.setAttribute('aria-pressed', 'false'); coordinateCanvas.classList.remove('is-playing');
-}
-coordinatePlay.addEventListener('click', () => {
-  if (coordinateTimer !== undefined) { pauseCoordinate(); return; }
-  coordinatePlay.textContent = 'Ⅱ Pause example'; coordinatePlay.setAttribute('aria-pressed', 'true'); coordinateCanvas.classList.add('is-playing');
-  const start = performance.now(), sx = Number(xSlider.value), sy = Number(ySlider.value);
-  const targets = [[sx, sy], [3220, 790], [2820, 3290], [720, 2660], [sx, sy]];
-  coordinateTimer = setInterval(() => {
-    const t = ((performance.now() - start) / 2800) % 4, i = Math.floor(t), blend = (1 - Math.cos((t - i) * Math.PI)) / 2;
-    xSlider.value = String(Math.round(targets[i][0] + (targets[i + 1][0] - targets[i][0]) * blend));
-    ySlider.value = String(Math.round(targets[i][1] + (targets[i + 1][1] - targets[i][1]) * blend));
-    updateCoordinate();
-  }, 80);
-});
-xSlider.addEventListener('input', pauseCoordinate); ySlider.addEventListener('input', pauseCoordinate);
-new IntersectionObserver(entries => { if (!entries[0].isIntersecting) pauseCoordinate(); }, {threshold:.1}).observe(coordinateCanvas);
-pauseAnimations.push(pauseCoordinate);
-document.addEventListener('visibilitychange', () => { if (document.hidden) pauseAnimations.forEach(pause => pause()); });
-
-// Figure 1: smoothly follow a target and update both representations.
-const overviewPlay = document.querySelector('#play-overview');
-const overviewFigure = document.querySelector('#paper-figure-1');
-let overviewTimer;
-function showOverview(x, y) {
-  const gx = Math.floor(x / 64), gy = Math.floor(y / 64), cx = x % 64, cy = y % 64;
-  const px = x / 4095 * 400, py = y / 4095 * 300;
-  document.querySelector('#overview-xy').textContent = `(${x}, ${y})`;
-  document.querySelector('#overview-flat').textContent = `x = ${x}   y = ${y}`;
-  document.querySelector('#overview-grid-code').textContent = `${gx}, ${gy}`;
-  document.querySelector('#overview-cell-code').textContent = `${cx}, ${cy}`;
-  for (const id of ['overview-point', 'overview-halo']) { const p = document.getElementById(id); p.setAttribute('cx', px); p.setAttribute('cy', py); }
-  for (const id of ['overview-region', 'overview-detail']) { const box = document.getElementById(id); box.setAttribute('x', gx * 6.25); box.setAttribute('y', gy * 4.6875); }
-  document.querySelector('#overview-crosshair').setAttribute('d', `M${px} 0V300M0 ${py}H400`);
-}
-function stopOverview() { clearInterval(overviewTimer); overviewTimer = undefined; overviewPlay.textContent = '▶ Play comparison'; overviewPlay.setAttribute('aria-pressed', 'false'); overviewFigure.classList.remove('is-running'); }
-overviewPlay.addEventListener('click', () => {
-  if (overviewTimer !== undefined) { stopOverview(); return; }
-  const start = performance.now();
-  overviewPlay.textContent = 'Ⅱ Pause comparison'; overviewPlay.setAttribute('aria-pressed', 'true'); overviewFigure.classList.add('is-running');
-  overviewTimer = setInterval(() => { const t = (performance.now() - start) / 4500; showOverview(Math.round(2048 + 1450 * Math.sin(t)), Math.round(2048 + 1450 * Math.sin(t * .73 + .4))); }, 80);
-});
-showOverview(1310, 2293);
-new IntersectionObserver(entries => { if (!entries[0].isIntersecting) stopOverview(); }, {threshold:.1}).observe(overviewFigure);
-pauseAnimations.push(stopOverview);
 // Figure 4: illustrative referring expressions, including a negative query.
 const expressionExamples = [
   {type:'ATTRIBUTE', text:'The blue circle.', targets:[0]},
@@ -162,9 +73,6 @@ pauseAnimations.push(stopExpressions);
 // Start each diagram once as it enters view; respect reduced-motion preferences.
 if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   const animatedEntrances = new Map([
-    [document.querySelector('#paper-figure-1'), ['#play-overview']],
-    [document.querySelector('.demo-canvas'), ['#play-coordinate']],
-    [document.querySelector('#training-flow'), ['#training-flow .flow-play']],
     [document.querySelector('#data-flow'), ['#data-flow .flow-play']],
     [document.querySelector('.data-example'), ['#play-expressions']]
   ]);
@@ -180,3 +88,5 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   }, {threshold:.3});
   for (const target of animatedEntrances.keys()) startOnView.observe(target);
 }
+
+document.addEventListener('visibilitychange', () => { if (document.hidden) pauseAnimations.forEach(pause => pause()); });
