@@ -30,4 +30,6 @@ All 7 main-text figures are embedded in the relevant method, dataset, results, a
 
 Implementation repository: https://github.com/YuweiZhang2002/HiLoc-Code (coming soon).
 
-Three opt-in animations illustrate Grid–Cell encoding, the training workflow, and the HiRef data engine. They support play/pause, manual steps, and automatic pause when offscreen; original figures remain available.
+Figures 1–4 are native animated diagrams for the overview, Grid–Cell mechanism, training workflow, and HiRef data engine. They start on entering the viewport, support play/pause and manual exploration, pause when offscreen, and respect reduced-motion preferences. Original artwork is available through collapsed reference disclosures. The dataset diagram uses explicitly labeled schematic scenes, not dataset samples.
+
+`paper/HiLoc.pdf` is the current camera-ready PDF linked by the Read the paper button. Its first-page project URL points back to the website.

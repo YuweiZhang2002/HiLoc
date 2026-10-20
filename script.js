@@ -111,3 +111,72 @@ xSlider.addEventListener('input', pauseCoordinate); ySlider.addEventListener('in
 new IntersectionObserver(entries => { if (!entries[0].isIntersecting) pauseCoordinate(); }, {threshold:.1}).observe(coordinateCanvas);
 pauseAnimations.push(pauseCoordinate);
 document.addEventListener('visibilitychange', () => { if (document.hidden) pauseAnimations.forEach(pause => pause()); });
+
+// Figure 1: smoothly follow a target and update both representations.
+const overviewPlay = document.querySelector('#play-overview');
+const overviewFigure = document.querySelector('#paper-figure-1');
+let overviewTimer;
+function showOverview(x, y) {
+  const gx = Math.floor(x / 64), gy = Math.floor(y / 64), cx = x % 64, cy = y % 64;
+  const px = x / 4095 * 400, py = y / 4095 * 300;
+  document.querySelector('#overview-xy').textContent = `(${x}, ${y})`;
+  document.querySelector('#overview-flat').textContent = `x = ${x}   y = ${y}`;
+  document.querySelector('#overview-grid-code').textContent = `${gx}, ${gy}`;
+  document.querySelector('#overview-cell-code').textContent = `${cx}, ${cy}`;
+  for (const id of ['overview-point', 'overview-halo']) { const p = document.getElementById(id); p.setAttribute('cx', px); p.setAttribute('cy', py); }
+  for (const id of ['overview-region', 'overview-detail']) { const box = document.getElementById(id); box.setAttribute('x', gx * 6.25); box.setAttribute('y', gy * 4.6875); }
+  document.querySelector('#overview-crosshair').setAttribute('d', `M${px} 0V300M0 ${py}H400`);
+}
+function stopOverview() { clearInterval(overviewTimer); overviewTimer = undefined; overviewPlay.textContent = '▶ Play comparison'; overviewPlay.setAttribute('aria-pressed', 'false'); overviewFigure.classList.remove('is-running'); }
+overviewPlay.addEventListener('click', () => {
+  if (overviewTimer !== undefined) { stopOverview(); return; }
+  const start = performance.now();
+  overviewPlay.textContent = 'Ⅱ Pause comparison'; overviewPlay.setAttribute('aria-pressed', 'true'); overviewFigure.classList.add('is-running');
+  overviewTimer = setInterval(() => { const t = (performance.now() - start) / 4500; showOverview(Math.round(2048 + 1450 * Math.sin(t)), Math.round(2048 + 1450 * Math.sin(t * .73 + .4))); }, 80);
+});
+showOverview(1310, 2293);
+new IntersectionObserver(entries => { if (!entries[0].isIntersecting) stopOverview(); }, {threshold:.1}).observe(overviewFigure);
+pauseAnimations.push(stopOverview);
+// Figure 4: illustrative referring expressions, including a negative query.
+const expressionExamples = [
+  {type:'ATTRIBUTE', text:'The blue circle.', targets:[0]},
+  {type:'RELATION', text:'The shape to the left of the orange triangle.', targets:[0]},
+  {type:'SET LOGIC', text:'All shapes except the blue circle.', targets:[1,2]},
+  {type:'NON-EXISTENCE', text:'The purple triangle.', targets:[]}
+];
+let expressionIndex = 0, expressionTimer;
+const expressionPlay = document.querySelector('#play-expressions');
+function showExpression(index) {
+  expressionIndex = index; const item = expressionExamples[index];
+  document.querySelector('#expression-type').textContent = item.type;
+  document.querySelector('#expression-text').textContent = `“${item.text}”`;
+  document.querySelector('#expression-result').textContent = item.targets.length ? `${item.targets.length} target instance${item.targets.length > 1 ? 's' : ''}` : 'No target → <no_box>';
+  for (const box of document.querySelectorAll('.target-box')) box.setAttribute('opacity', item.targets.includes(Number(box.dataset.target)) ? '1' : '0');
+}
+function stopExpressions() { clearInterval(expressionTimer); expressionTimer = undefined; expressionPlay.textContent = '▶ Play examples'; expressionPlay.setAttribute('aria-pressed','false'); }
+expressionPlay.addEventListener('click', () => { if (expressionTimer !== undefined) { stopExpressions(); return; } expressionPlay.textContent = 'Ⅱ Pause examples'; expressionPlay.setAttribute('aria-pressed','true'); expressionTimer = setInterval(() => showExpression((expressionIndex + 1) % expressionExamples.length), 2600); });
+document.querySelector('#next-expression').addEventListener('click', () => { stopExpressions(); showExpression((expressionIndex + 1) % expressionExamples.length); });
+new IntersectionObserver(entries => { if (!entries[0].isIntersecting) stopExpressions(); }, {threshold:.1}).observe(document.querySelector('.data-example'));
+pauseAnimations.push(stopExpressions);
+
+// Start each diagram once as it enters view; respect reduced-motion preferences.
+if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  const animatedEntrances = new Map([
+    [document.querySelector('#paper-figure-1'), ['#play-overview']],
+    [document.querySelector('.demo-canvas'), ['#play-coordinate']],
+    [document.querySelector('#training-flow'), ['#training-flow .flow-play']],
+    [document.querySelector('#data-flow'), ['#data-flow .flow-play']],
+    [document.querySelector('.data-example'), ['#play-expressions']]
+  ]);
+  const startOnView = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      if (entry.intersectionRatio < .3) continue;
+      for (const selector of animatedEntrances.get(entry.target)) {
+        const button = document.querySelector(selector);
+        if (button.getAttribute('aria-pressed') !== 'true') button.click();
+      }
+      startOnView.unobserve(entry.target);
+    }
+  }, {threshold:.3});
+  for (const target of animatedEntrances.keys()) startOnView.observe(target);
+}
