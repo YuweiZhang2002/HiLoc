@@ -60,3 +60,54 @@ for (const trigger of document.querySelectorAll('[data-zoom]')) {
 }
 document.querySelector('#close-figure').addEventListener('click', () => dialog.close());
 dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
+
+// Animations are opt-in, pausable, and stop when scrolled out of view.
+const flowDescriptions = {"training": ["Pair visual content with localization queries.", "Learn phrase, box, Grid\u2013Cell, and rejection tokens from supervised examples.", "Sample predictions and use task-specific rewards to refine localization.", "Return grounded phrases and boxes, or reject queries with no target."], "data": ["Start with annotated objects in COCO train2017 images.", "Generate attribute, state, relation, set-logic, and non-existence queries.", "Link expressions to annotated instances and parse the target sets.", "Collect complex referring examples and explicit non-existence queries."]};
+const pauseAnimations = [];
+for (const flow of document.querySelectorAll('[data-flow]')) {
+  const play = flow.querySelector('.flow-play');
+  const nodes = [...flow.querySelectorAll('.flow-node')];
+  const descriptions = flowDescriptions[flow.id.replace('-flow', '')];
+  let step = 0, timer;
+  function showStep(index) {
+    step = index;
+    nodes.forEach((node, i) => { node.classList.toggle('is-active', i === step); node.setAttribute('aria-pressed', String(i === step)); });
+    flow.querySelector('.flow-counter').textContent = `0${step + 1} / 04`;
+    flow.querySelector('.flow-description p').textContent = descriptions[step];
+  }
+  function pause() {
+    clearInterval(timer); timer = undefined;
+    play.textContent = '▶ Play flow'; play.setAttribute('aria-pressed', 'false'); flow.classList.remove('is-playing');
+  }
+  play.addEventListener('click', () => {
+    if (timer !== undefined) { pause(); return; }
+    play.textContent = 'Ⅱ Pause'; play.setAttribute('aria-pressed', 'true'); flow.classList.add('is-playing');
+    timer = setInterval(() => showStep((step + 1) % nodes.length), 2200);
+  });
+  nodes.forEach((node, i) => node.addEventListener('click', () => { pause(); showStep(i); }));
+  new IntersectionObserver(entries => { if (!entries[0].isIntersecting) pause(); }, {threshold: .1}).observe(flow);
+  pauseAnimations.push(pause);
+}
+const coordinatePlay = document.querySelector('#play-coordinate');
+const coordinateCanvas = document.querySelector('.demo-canvas');
+let coordinateTimer;
+function pauseCoordinate() {
+  clearInterval(coordinateTimer); coordinateTimer = undefined;
+  coordinatePlay.textContent = '▶ Play example'; coordinatePlay.setAttribute('aria-pressed', 'false'); coordinateCanvas.classList.remove('is-playing');
+}
+coordinatePlay.addEventListener('click', () => {
+  if (coordinateTimer !== undefined) { pauseCoordinate(); return; }
+  coordinatePlay.textContent = 'Ⅱ Pause example'; coordinatePlay.setAttribute('aria-pressed', 'true'); coordinateCanvas.classList.add('is-playing');
+  const start = performance.now(), sx = Number(xSlider.value), sy = Number(ySlider.value);
+  const targets = [[sx, sy], [3220, 790], [2820, 3290], [720, 2660], [sx, sy]];
+  coordinateTimer = setInterval(() => {
+    const t = ((performance.now() - start) / 2800) % 4, i = Math.floor(t), blend = (1 - Math.cos((t - i) * Math.PI)) / 2;
+    xSlider.value = String(Math.round(targets[i][0] + (targets[i + 1][0] - targets[i][0]) * blend));
+    ySlider.value = String(Math.round(targets[i][1] + (targets[i + 1][1] - targets[i][1]) * blend));
+    updateCoordinate();
+  }, 80);
+});
+xSlider.addEventListener('input', pauseCoordinate); ySlider.addEventListener('input', pauseCoordinate);
+new IntersectionObserver(entries => { if (!entries[0].isIntersecting) pauseCoordinate(); }, {threshold:.1}).observe(coordinateCanvas);
+pauseAnimations.push(pauseCoordinate);
+document.addEventListener('visibilitychange', () => { if (document.hidden) pauseAnimations.forEach(pause => pause()); });

@@ -29,3 +29,5 @@ Only the public website files are packaged by the workflow. The paper source, lo
 All 7 main-text figures are embedded in the relevant method, dataset, results, and analysis sections. All 6 main-text tables use native HTML with complete rows and numerical entries. Wide tables scroll horizontally on small screens. `paper-assets.json` maps each item to its manuscript source; `benchmark-data.json` records the first four comparison tables extracted from LaTeX, including original emphasis.
 
 Implementation repository: https://github.com/YuweiZhang2002/HiLoc-Code (coming soon).
+
+Three opt-in animations illustrate Grid–Cell encoding, the training workflow, and the HiRef data engine. They support play/pause, manual steps, and automatic pause when offscreen; original figures remain available.
